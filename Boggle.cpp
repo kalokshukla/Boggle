@@ -47,6 +47,9 @@ const string BIG_BOGGLE_CUBES[25]  = {
 char boggle5[5][5];
 char boggle4[4][4];
 
+
+Set<string> paths;
+
 /* Function prototypes */
 
 void welcome();
@@ -147,6 +150,7 @@ void initRandomBoard(){
 }
 
 void humansTurn(){
+    Set<string> words;
     cout<<"\n\nIf you'd like to configure board for you, enter \"CONFIG\" else press ENTER.\n";
     string s=getLine();
     if (s=="CONFIG") {
@@ -165,8 +169,18 @@ void humansTurn(){
             break;
         }
         else {
+            paths.clear();
             if (word.size()>=4&&english.contains(word)&&wordOnTheBoard(word)) {
-                recordWordForPlayer(word, HUMAN);
+                if (!words.contains(word)) {
+                    words.add(word);
+                    recordWordForPlayer(word, HUMAN);
+                }
+                else {
+                    cout<<"You are not supposed to repeat words.\n";
+                }
+                
+                
+               
             }
             else {
                 cout<<"Illegal word!\n";
@@ -191,6 +205,7 @@ bool wordOnTheBoard(string word){
     return false;
 }
 bool wordThatStartsHere(string word, int row, int col){
+    
     if (word=="") {
         return true;
     }
@@ -199,6 +214,17 @@ bool wordThatStartsHere(string word, int row, int col){
     }
     else {
         if (boggle5[row][col]==word[0]) {
+            string path="("+integerToString(row)+","+integerToString(col)+")";
+            if (!paths.contains(path)) {
+                paths.add(path);
+            }
+            else {
+                foreach(string s in paths){
+                    highlightCube(stringToInteger(s.substr(1,1)), stringToInteger(s.substr(3,1)), false);
+                }
+                return false;
+            }
+            highlightCube(row, col, true);
             return (wordThatStartsHere(word.substr(1), row+1, col)||wordThatStartsHere(word.substr(1), row, col+1)||wordThatStartsHere(word.substr(1), row+1, col+1)||wordThatStartsHere(word.substr(1), row-1, col)||wordThatStartsHere(word.substr(1), row, col-1)||wordThatStartsHere(word.substr(1), row-1, col-1)||wordThatStartsHere(word.substr(1), row-1, col+1)||wordThatStartsHere(word.substr(1), row+1, col-1));
         }
         else {
