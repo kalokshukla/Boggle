@@ -25,6 +25,13 @@ Lexicon english("EnglishWords.dat");
 const int BOGGLE_WINDOW_WIDTH = 650;
 const int BOGGLE_WINDOW_HEIGHT = 350;
 
+/* Size of board in case user fills it up */
+int size=5;
+Set<string> allwords;
+
+Set<string> mypaths;
+
+
 const string STANDARD_CUBES[16]  = {
    "AAEEGN", "ABBJOO", "ACHOPS", "AFFKPS",
    "AOOTTW", "CIMOTU", "DEILRX", "DELRVY",
@@ -57,6 +64,8 @@ void giveInstructions();
 void initRandomBoard();
 void initConfBoard();
 void humansTurn();
+
+void addWords(string prefix,int i, int j);
 void myTurn();
 bool wordOnTheBoard(string word);
 bool wordThatStartsHere(string word, int row, int col);
@@ -165,7 +174,8 @@ void humansTurn(){
         word=getLine();
         if (word=="I QUIT") {
             cout<<"Is that all you've got?\nSo! now its my turn; wait for sometime.\n";
-            sleep(5);
+            //sleep(5);
+            myTurn();
             break;
         }
         else {
@@ -207,6 +217,9 @@ bool wordOnTheBoard(string word){
 bool wordThatStartsHere(string word, int row, int col){
     
     if (word=="") {
+        foreach(string s in paths){
+            highlightCube(stringToInteger(s.substr(1,1)), stringToInteger(s.substr(3,1)), true);
+        }
         return true;
     }
     else if(row>5||col>5||row<0||col<0){
@@ -219,12 +232,10 @@ bool wordThatStartsHere(string word, int row, int col){
                 paths.add(path);
             }
             else {
-                foreach(string s in paths){
-                    highlightCube(stringToInteger(s.substr(1,1)), stringToInteger(s.substr(3,1)), false);
-                }
+                
                 return false;
             }
-            highlightCube(row, col, true);
+            //\highlightCube(row, col, true);
             return (wordThatStartsHere(word.substr(1), row+1, col)||wordThatStartsHere(word.substr(1), row, col+1)||wordThatStartsHere(word.substr(1), row+1, col+1)||wordThatStartsHere(word.substr(1), row-1, col)||wordThatStartsHere(word.substr(1), row, col-1)||wordThatStartsHere(word.substr(1), row-1, col-1)||wordThatStartsHere(word.substr(1), row-1, col+1)||wordThatStartsHere(word.substr(1), row+1, col-1));
         }
         else {
@@ -236,7 +247,7 @@ bool wordThatStartsHere(string word, int row, int col){
 
 void initConfBoard(){
     cout<<"Please enter board size i.e 4 or 5: ";
-    int size=getInteger();
+    size=getInteger();
     drawBoard(size, size);
     char ch;
     cout<<"\nNow enter charcters in following format (row-major) \n";
@@ -254,3 +265,60 @@ void initConfBoard(){
     }
     return;
 }
+
+void myTurn(){
+    Set<string> modified;
+    string s;
+    for (int i=0; i<5; i++) {
+        for (int j=0; j<5; j++) {
+            s[0]=boggle5[i][j];
+            mypaths.clear();
+            addWords(s, i, j);        
+        }
+    }
+    foreach(string word in allwords){
+        recordWordForPlayer(word, COMPUTER);
+
+    }
+    
+    
+    return;
+}
+
+void addWords(string prefix,int i, int j){
+    
+    if (i<0||i>=size||j<0||j>=size||(!english.containsPrefix(prefix))) {
+        return;
+    }
+    else {
+        if (english.contains(prefix)&&prefix.size()>=4) {
+            allwords+=prefix;
+            for (int i=0; i<size; i++) {
+                for (int j=0; j<size; j++) {
+                    highlightCube(i, j, false);
+                }
+            }
+            //foreach(string s in mypaths){
+              //  highlightCube(stringToInteger(s.substr(1,1)), stringToInteger(s.substr(3,1)), true);
+            //}
+            
+            //paths.clear();
+            
+        }
+        string path="("+integerToString(i)+","+integerToString(j)+")";
+        if (!mypaths.contains(path)) {
+            mypaths.add(path);
+        }
+        else {
+            return;
+        }
+        addWords(prefix+boggle5[i-1][j], i-1, j);
+        addWords(prefix+boggle5[i-1][j+1], i-1, j+1);
+        addWords(prefix+boggle5[i-1][j-1], i-1, j-1);
+        addWords(prefix+boggle5[i][j+1], i, j+1);
+        addWords(prefix+boggle5[i][j-1], i, j-1);
+        addWords(prefix+boggle5[i+1][j+1], i+1, j+1);
+        addWords(prefix+boggle5[i+1][j], i+1, j);
+        addWords(prefix+boggle5[i+1][j-1], i+1, j-1);
+    }
+    }
