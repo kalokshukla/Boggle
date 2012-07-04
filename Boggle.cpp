@@ -44,16 +44,18 @@ const string BIG_BOGGLE_CUBES[25]  = {
  * i.e the characters which are shown
  */
 
-char boggle5[25];
-char boggle4[16];
+char boggle5[5][5];
+char boggle4[4][4];
 
 /* Function prototypes */
 
 void welcome();
 void giveInstructions();
 void initRandomBoard();
+void initConfBoard();
 void humansTurn();
 bool wordOnTheBoard(string word);
+bool wordThatStartsHere(string word, int row, int col);
 /* Main program */
 
 int main() {
@@ -135,30 +137,93 @@ void initRandomBoard(){
         for (int j=0; j<5; j++) {
             char ch=big_boggle[k][randomInteger(0, 5)];
             labelCube(i, j, ch);
-            boggle5[k]=ch;
+            boggle5[i][j]=ch;
             k++;
         }
         
     }
-    
+    return;
 }
 
 void humansTurn(){
-    cout<<"Think up of words and write them here as long as you can. When exhausted type \"I QUIT\" as it is.";
-    initRandomBoard();
+    cout<<"\n\nIf you'd like to configure board for you, enter \"CONFIG\" else press ENTER.\n";
+    string s=getLine();
+    if (s=="CONFIG") {
+        initConfBoard();
+    }
+    else {
+        initRandomBoard();
+    }
+    cout<<"\nNow enter the words that you can think of as long as you like. When exhausted, enter \"I QUIT\"\n";
     string word;
     while(true){
-        getline(cin, word);
+        word=getLine();
         if (word=="I QUIT") {
+            cout<<"Is that all you've got?\nSo! now its my turn; wait for sometime.\n";
+            sleep(5);
             break;
         }
         else {
             if (word.size()>=4&&english.contains(word)&&wordOnTheBoard(word)) {
                 recordWordForPlayer(word, HUMAN);
             }
+            else {
+                cout<<"Illegal word!\n";
+                continue;
+            }
         }
     }
     return;
 }
 
-void wordOnTheBoard
+bool wordOnTheBoard(string word){
+    for (int i=0; i<5; i++) {
+        for (int j=0; j<5; j++) {
+            if (boggle5[i][j]==word[0]) {
+                if (wordThatStartsHere(word, i, j)) {
+                    return true;
+                }
+                continue ;
+            }
+        }
+    }
+    return false;
+}
+bool wordThatStartsHere(string word, int row, int col){
+    if (word=="") {
+        return true;
+    }
+    else if(row>5||col>5||row<0||col<0){
+        return false;
+    }
+    else {
+        if (boggle5[row][col]==word[0]) {
+            return (wordThatStartsHere(word.substr(1), row+1, col)||wordThatStartsHere(word.substr(1), row, col+1)||wordThatStartsHere(word.substr(1), row+1, col+1)||wordThatStartsHere(word.substr(1), row-1, col)||wordThatStartsHere(word.substr(1), row, col-1)||wordThatStartsHere(word.substr(1), row-1, col-1));
+        }
+        else {
+            return false;
+        }
+        
+    }
+}
+
+void initConfBoard(){
+    cout<<"Please enter board size i.e 4 or 5: ";
+    int size=getInteger();
+    drawBoard(size, size);
+    char ch;
+    cout<<"\nNow enter charcters in following format (row-major) \n";
+    cout<<"  a  b  c  d  \n";
+    cout<<"  s  r  r  e  \n";
+    cout<<"  a  e  t  y  \n";
+    cout<<"  w  e  g  h  \n";
+    cout<<"\n*****************************************************\n";
+    for (int i=0; i<size; i++) {
+        for (int j=0; j<size; j++) {
+            cin>>ch;
+            labelCube(i, j, ch);
+            boggle5[i][j]=ch;
+        }
+    }
+    return;
+}
