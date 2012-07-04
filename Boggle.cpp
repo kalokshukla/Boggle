@@ -54,6 +54,7 @@ void giveInstructions();
 void initRandomBoard();
 void initConfBoard();
 void humansTurn();
+void myTurn();
 bool wordOnTheBoard(string word);
 bool wordThatStartsHere(string word, int row, int col);
 /* Main program */
@@ -198,7 +199,7 @@ bool wordThatStartsHere(string word, int row, int col){
     }
     else {
         if (boggle5[row][col]==word[0]) {
-            return (wordThatStartsHere(word.substr(1), row+1, col)||wordThatStartsHere(word.substr(1), row, col+1)||wordThatStartsHere(word.substr(1), row+1, col+1)||wordThatStartsHere(word.substr(1), row-1, col)||wordThatStartsHere(word.substr(1), row, col-1)||wordThatStartsHere(word.substr(1), row-1, col-1));
+            return (wordThatStartsHere(word.substr(1), row+1, col)||wordThatStartsHere(word.substr(1), row, col+1)||wordThatStartsHere(word.substr(1), row+1, col+1)||wordThatStartsHere(word.substr(1), row-1, col)||wordThatStartsHere(word.substr(1), row, col-1)||wordThatStartsHere(word.substr(1), row-1, col-1)||wordThatStartsHere(word.substr(1), row-1, col+1)||wordThatStartsHere(word.substr(1), row+1, col-1));
         }
         else {
             return false;
